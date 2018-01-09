@@ -23,7 +23,7 @@ bool str2Bool(string toConvert)   {
     } else  {
         cout << "FAILED! Improper value passed to str2Bool. Asserting true..." << '\n';
         cout << "the value was " << toConvert;
-        assert(true);
+        assert(false);
     }
 }
 
@@ -34,7 +34,7 @@ string bool2Str(bool toConvert) {
         return "false";
     } else  {
         cout << "FAILED! Improper value passed to bool2Str. Asserting true...";
-        assert(true);
+        assert(false);
     }
 }
 
@@ -45,10 +45,11 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
         cout << "found lop as and, going to push " << toPush << endl;
     } else if  (lop == "or")   {
         toPush = bool2Str(valueMap[var0] or valueMap[var1]);
-    //} else if (lop == "->") { what's the logical equivalent in AND and OR and NOT?
+    } else if (lop == "->") { 
+        toPush = bool2Str(!valueMap[var0] or valueMap[var1]);
     } else  {
         cout << "ERROR! Invalid logical statement. Asserting true...";
-        assert(true);
+        assert(false);
     }
     cout << "evaluate returned " << toPush << " and I'm returning this to be pushed onto deque\n";
     return toPush;
@@ -82,12 +83,11 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
     return str2Bool(var0);
 }
 
-
-deque<string> getTokens(string rawStr)    { // delimiter only needs to be space 
+deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be space 
     // not very maintainable bc of this; can't add more delimiters in a very efficient fashion
     deque<string> tokens;
     string token = "";
-    for (char c : rawStr)   {
+    for (char c : rawStr) {
         if (c != ' ')       {
             token += c;
         }   else    {
@@ -102,17 +102,46 @@ deque<string> getTokens(string rawStr)    { // delimiter only needs to be space
     return tokens;
 }
 
+bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
+    string newEqn = "",toEval = "";
+    bool isEval = false;
+    if (eqn == "true")  return true;
+    if (eqn == "false") return false;
+    for (int i = 0; i < eqn.length(); ++i)  {
+        char c = eqn[i];
+        if (c == '(')   {
+            isEval = true;
+            toEval = "";
+            continue;
+        }
+        if (c == ')')   {
+            newEqn += bool2Str(solveEquationDeque(tokenizeSpaces(toEval), valueMap));
+            newEqn += eqn.substr(i+1);
+            cout << "newEqn now is " << newEqn << endl;
+            return solveEquation(newEqn, valueMap);
+            assert(false);
+            continue;
+        }
+        if (isEval) {
+            toEval += c;
+        } else  {
+            newEqn += c;
+        }
+    }
+    // assuming we've broken it into its smallest pieces
+    cout << "finally solving " << eqn << endl;
+    return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
+}
+
+
+
 int main()  {
     unordered_map<string, bool> valueMap;
     valueMap["true"] = true;
     valueMap["false"] = false;
-    valueMap["a"] = true;
-    valueMap["b"] = false;
-    valueMap["c"] = true;
-    deque<string> tokens = getTokens("a and true and c");
-    printTokens(tokens);
-    solveEquation("(a and true) and c",valueMap);
-    assert(false);
-    cout << bool2Str(solveEquationDeque(tokens,valueMap));
+    valueMap["a"] = false;
+    valueMap["b"] = true;
+    valueMap["c"] = false;
+    cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
     return 0;
 }
