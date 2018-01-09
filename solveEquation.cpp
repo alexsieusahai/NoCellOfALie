@@ -54,11 +54,10 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
     return toPush;
 }
 
-bool solveEquation(deque<string> equationTokens, unordered_map<string, bool> valueMap)    {
-    // solves the smallest part of the equation possible given what each variable is, then recursively calls itself once again.
-    // don't worry about brackets for now
+bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool> valueMap)    {
+    // solve equation
+    // does not currently support brackets
     string var0 = "", var1 = "", lop = "";
-            return solveEquation(equationTokens, valueMap);
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
@@ -105,10 +104,15 @@ deque<string> getTokens(string rawStr)    { // delimiter only needs to be space
 
 int main()  {
     unordered_map<string, bool> valueMap;
+    valueMap["true"] = true;
+    valueMap["false"] = false;
     valueMap["a"] = true;
     valueMap["b"] = false;
     valueMap["c"] = true;
-    deque<string> tokens = getTokens("a and b and c");
-    cout << bool2Str(solveEquation(tokens,valueMap));
+    deque<string> tokens = getTokens("a and true and c");
+    printTokens(tokens);
+    solveEquation("(a and true) and c",valueMap);
+    assert(false);
+    cout << bool2Str(solveEquationDeque(tokens,valueMap));
     return 0;
 }
