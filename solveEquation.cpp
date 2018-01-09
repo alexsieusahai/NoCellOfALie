@@ -63,6 +63,7 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
         if (var0 == "") {
             var0 = equationTokens.front();
             cout << "set var0 to " << var0 << endl;
+            // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
             cout << "set lop to " << lop << endl;
