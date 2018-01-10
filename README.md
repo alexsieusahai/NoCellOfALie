@@ -8,8 +8,7 @@ How to use:
 2. Run program.
 
 TODO:  
-1. Find a nice solution for integration of NOT  
-2. Print out plaintext truth table  
-3. Print out latex syntax for truth table  
-4. Print out markdown syntax for truth table  
-5. Make a nice GUI or at least a better user interface than just having the user edit the equation (some syntax checker would be nice if plausible)
+1. Find a nice solution for integration of NOT that respects DeMorgan's Law
+2. Print out latex syntax for truth table  
+3. Print out markdown syntax for truth table  
+4. Make a nice GUI or at least a better user interface than just having the user edit the equation (some syntax checker would be nice if plausible)

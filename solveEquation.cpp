@@ -3,6 +3,9 @@
 #include <deque>
 #include <cassert>
 #include <unordered_map>
+#include <vector>
+
+#include "printTables.h"
 
 using namespace std;
 
@@ -21,8 +24,8 @@ bool str2Bool(string toConvert)   {
     } else if (toConvert == "false")  {
         return false;
     } else  {
-        cout << "FAILED! Improper value passed to str2Bool. Asserting true..." << '\n';
-        cout << "the value was " << toConvert;
+        cout << "FAILED! Improper value passed to str2Bool. Asserting false..." << '\n';
+        cout << "the value was " << toConvert << endl;
         assert(false);
     }
 }
@@ -51,7 +54,7 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
         cout << "ERROR! Invalid logical statement. Asserting true...";
         assert(false);
     }
-    cout << "evaluate returned " << toPush << " and I'm returning this to be pushed onto deque\n";
+    //cout << "evaluate returned " << toPush << " and I'm returning this to be pushed onto deque\n";
     return toPush;
 }
 
@@ -62,18 +65,18 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
-            cout << "set var0 to " << var0 << endl;
+            //cout << "set var0 to " << var0 << endl;
             // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
-            cout << "set lop to " << lop << endl;
+            //cout << "set lop to " << lop << endl;
         } else  {
             var1 = equationTokens.front();
-            cout << "set var1 to " << var1 << endl;
+            //cout << "set var1 to " << var1 << endl;
         }
         equationTokens.pop_front();
         if (var0 != "" and var1 != "" and lop != "")    {
-            cout << "evaluating...\n";
+            //cout << "evaluating...\n";
             equationTokens.push_front(evaluate(var0, var1, lop, valueMap));
             //printTokens(equationTokens);
             var0 = "";
@@ -118,7 +121,7 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
         if (c == ')')   {
             newEqn += bool2Str(solveEquationDeque(tokenizeSpaces(toEval), valueMap));
             newEqn += eqn.substr(i+1);
-            cout << "newEqn now is " << newEqn << endl;
+            //cout << "newEqn now is " << newEqn << endl;
             return solveEquation(newEqn, valueMap);
             assert(false);
             continue;
@@ -130,7 +133,7 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
         }
     }
     // assuming we've broken it into its smallest pieces
-    cout << "finally solving " << eqn << endl;
+    //cout << "finally solving " << eqn << endl;
     return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
 }
 
@@ -140,13 +143,54 @@ int main()  {
     unordered_map<string, bool> valueMap;
     valueMap["true"] = true;
     valueMap["false"] = false;
+    
 
-    string vars;
+    string vars,equation;
     cout << "Please enter your variables below, seperated by a space.\n";
-    cin >> vars;
-    valueMap["a"] = false;
-    valueMap["b"] = true;
-    valueMap["c"] = false;
-    cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
+    getline(cin,vars);
+    // tokenize vars, and then use the length of that container to get the number of possible states and the number of bits that could represent those possible states
+    deque<string> tmp = tokenizeSpaces(vars); 
+
+    // testing
+    //vector<string> varNames;
+    // move all the data to a vector for easier usability later
+    //while (!tmp.empty())    {
+    //    varNames.push_back(tmp.front());
+    //    tmp.pop_front();
+    //}
+
+    // get number of possible states, and the number of bits to represent them
+    int numVariations = 1, numBits = tmp.size();
+    for (int i = 0; i < numBits; ++i)   {
+        numVariations *= 2;
+    }
+
+
+    cout << "Please enter your equation below.\n";
+    getline(cin, equation);
+    // should include a syntax checker here 
+    
+    bool sols[numVariations];
+    for (int i = 0; i < numVariations; ++i) {
+        // get bits and assign to valueMap appropriately
+        for (int j = numBits-1; j >= 0; --j)   {
+            if ((i & 1 << j) >> j)  {
+                //cout << '1';
+                valueMap[tmp[(numBits-1)-j]] = true;
+                //cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
+            } else  {
+                //cout << '0';
+                valueMap[tmp[(numBits-1)-j]] = false;
+                //cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
+            }
+        }
+        //sols[i] = solveEquation("(a -> b) and (a or c)",valueMap);
+        sols[i] = solveEquation(equation,valueMap);
+        cout << "sols[i] was set to " << bool2Str(sols[i]) << endl;
+    }
+
+    printPlaintext(sols, tmp, equation, numVariations, numBits);
+
+    //cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
     return 0;
 }
