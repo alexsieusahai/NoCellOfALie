@@ -7,6 +7,9 @@
 
 #include "printTables.h"
 
+// TODO:
+// go to line 139
+
 using namespace std;
 
 void printTokens(deque<string> tokens) {
@@ -84,7 +87,10 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
             lop = "";
         }
     }
-    return str2Bool(var0);
+    if (var0 == "true" || var0 == "false")  {
+        return str2Bool(var0);
+    }
+    return valueMap[var0];
 }
 
 deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be space 
@@ -108,18 +114,41 @@ deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be s
 
 bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
     string newEqn = "",toEval = "";
-    bool isEval = false;
+    bool isEval = false, reverseBool = false, notForNextBracket = false;
     if (eqn == "true")  return true;
     if (eqn == "false") return false;
     for (int i = 0; i < eqn.length(); ++i)  {
         char c = eqn[i];
+        // how do you implement NOT?
+        if (c == '~')   {
+            reverseBool = true;
+            notForNextBracket = false;
+        }
         if (c == '(')   {
+            // make sure that the NOT applies to the next set of brackets only
+            if (reverseBool)    {
+                if (!notForNextBracket)  {
+                    notForNextBracket = true;
+                } else  {
+                    reverseBool = false;
+                    notForNextBracket = false;
+                }
+            }
+            // now switch to adding into eval
             isEval = true;
             toEval = "";
             continue;
         }
         if (c == ')')   {
-            newEqn += bool2Str(solveEquationDeque(tokenizeSpaces(toEval), valueMap));
+            cout << "passing in " << toEval << endl;
+            bool toAdd = solveEquationDeque(tokenizeSpaces(toEval), valueMap);
+            // if reverseBool, then you "consumed" the ~ so take a slice of newEqn that doesn't include it
+            if (reverseBool)    {
+                toAdd = !toAdd;
+                // take a slice of newEqn without the last piece, and make that newEqn
+                // newEqn =  // substr from index 0 to index i-1
+            }
+            newEqn += bool2Str(toAdd);
             newEqn += eqn.substr(i+1);
             //cout << "newEqn now is " << newEqn << endl;
             return solveEquation(newEqn, valueMap);
@@ -150,14 +179,6 @@ int main()  {
     getline(cin,vars);
     // tokenize vars, and then use the length of that container to get the number of possible states and the number of bits that could represent those possible states
     deque<string> tmp = tokenizeSpaces(vars); 
-
-    // testing
-    //vector<string> varNames;
-    // move all the data to a vector for easier usability later
-    //while (!tmp.empty())    {
-    //    varNames.push_back(tmp.front());
-    //    tmp.pop_front();
-    //}
 
     // get number of possible states, and the number of bits to represent them
     int numVariations = 1, numBits = tmp.size();
