@@ -140,6 +140,10 @@ int main()  {
     unordered_map<string, bool> valueMap;
     valueMap["true"] = true;
     valueMap["false"] = false;
+
+    string vars;
+    cout << "Please enter your variables below, seperated by a space.\n";
+    cin >> vars;
     valueMap["a"] = false;
     valueMap["b"] = true;
     valueMap["c"] = false;
