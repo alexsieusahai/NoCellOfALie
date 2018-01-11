@@ -68,14 +68,14 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
-            //cout << "set var0 to " << var0 << endl;
+            cout << "set var0 to " << var0 << endl;
             // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
-            //cout << "set lop to " << lop << endl;
+            cout << "set lop to " << lop << endl;
         } else  {
             var1 = equationTokens.front();
-            //cout << "set var1 to " << var1 << endl;
+            cout << "set var1 to " << var1 << endl;
         }
         equationTokens.pop_front();
         if (var0 != "" and var1 != "" and lop != "")    {
@@ -114,6 +114,7 @@ deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be s
 
 bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
     string newEqn = "",toEval = "";
+    cout << "eqn is " << eqn << endl;
     bool isEval = false, reverseBool = false, notForNextBracket = false;
     if (eqn == "true")  return true;
     if (eqn == "false") return false;
@@ -198,10 +199,12 @@ int main()  {
             if ((i & 1 << j) >> j)  {
                 //cout << '1';
                 valueMap[tmp[(numBits-1)-j]] = true;
+                valueMap['~'+tmp[(numBits-1)-j]] = false;
                 //cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
             } else  {
                 //cout << '0';
                 valueMap[tmp[(numBits-1)-j]] = false;
+                valueMap['~'+tmp[(numBits-1)-j]] = true;
                 //cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
             }
         }
