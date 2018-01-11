@@ -145,8 +145,8 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
             // if reverseBool, then you "consumed" the ~ so take a slice of newEqn that doesn't include it
             if (reverseBool)    {
                 toAdd = !toAdd;
-                // take a slice of newEqn without the last piece, and make that newEqn
-                // newEqn =  // substr from index 0 to index i-1
+                // pop the not symbol off the back of newEqn
+                newEqn.pop_back();
             }
             newEqn += bool2Str(toAdd);
             newEqn += eqn.substr(i+1);
