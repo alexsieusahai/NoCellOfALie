@@ -36,3 +36,41 @@ void printPlaintext(bool truthArray[], deque<string> vars, string equation,int n
         if (i != numVariations-1)   cout << "| ";
     }
 }
+
+string toLatex(string equation) {
+    /* Converts equation in formatting to be read by program into LaTeX syntax
+     * TODO: Get it done
+     * ARGS:
+     * equation is a string which is formatted to be the equation that I have used for the rest of the prog
+     * RETURNS:
+     * equation in LaTeX syntax
+     */
+
+    return equation;
+}
+
+void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int numVariations, int numBits) {
+    cout << "\\begin{array}{";
+    for (int i = 0; i < numBits; ++i)   {
+        cout << "C|";
+    }
+    cout << "C}\n";
+    while (!vars.empty())   {
+            cout << '$' << vars.front() << "$ & ";
+            vars.pop_front();
+    }
+    cout << '$' << toLatex(equation) << "$ \\\\$ \n"
+        << "\\hline \n";
+    for (int i = 0; i < numVariations; ++i) {
+        // get the bits of i below
+        for (int j = 0; j < numBits; ++j)   {
+            ((i & 1 << j) >> j) ? cout << "T " : cout << "F ";
+            cout << "& ";
+        }
+        // now output the logical answer for the equation
+        cout << "& ";
+        (truthArray[i]) ? cout << "T" : cout << "F";
+        cout << "\\\\ \n";
+    }
+    cout << "\\end{array}\n";
+}

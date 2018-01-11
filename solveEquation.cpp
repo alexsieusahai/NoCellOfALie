@@ -214,6 +214,7 @@ int main()  {
     }
 
     printPlaintext(sols, tmp, equation, numVariations, numBits);
+    printLatexSyntax(sols, tmp, equation, numVariations, numBits);
 
     //cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
     return 0;
