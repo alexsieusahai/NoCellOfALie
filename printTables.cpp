@@ -1,5 +1,6 @@
 #include "printTables.h"
 #include <string>
+#include <unordered_map>
 
 using namespace std;
 
@@ -32,24 +33,53 @@ void printPlaintext(bool truthArray[], deque<string> vars, string equation,int n
                 cout << "F" << " | ";
             }
         }
-        cout << spacesForCentering << truthArray[i] << endl;
+        cout << spacesForCentering; // << truthArray[i] << endl;
+        (truthArray[i]) ? cout << "T" : cout << "F";
+        cout << endl;
         if (i != numVariations-1)   cout << "| ";
     }
+    cout << endl << endl << endl;
 }
 
 string toLatex(string equation) {
+    unordered_map<string, string> latexMap;
+    latexMap["and"] = "\\land";
+    latexMap["or"] = "\\lor";
+    latexMap["~"] = "\\neg";
+    latexMap["->"] = "\\to";
     /* Converts equation in formatting to be read by program into LaTeX syntax
-     * TODO: Get it done
      * ARGS:
      * equation is a string which is formatted to be the equation that I have used for the rest of the prog
      * RETURNS:
      * equation in LaTeX syntax
      */
-
-    return equation;
+    string token = "";
+    string newEquation = "";
+    for (int i = 0; i < equation.length(); ++i) {
+        char c = equation[i];
+        if (c == ' ')   {
+            if (latexMap.count(token))  {
+                newEquation += latexMap[token]+" ";
+            } else  {
+                newEquation += token+" ";
+            }
+            token = "";
+        } else if (c == '~')    {
+            newEquation += latexMap["~"]+" ";
+        } else  {
+            token += c;
+        }
+    }
+    if (latexMap.count(token))  {
+        newEquation += latexMap[token];
+    } else  {
+        newEquation += token;
+    }
+    return newEquation;
 }
 
 void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int numVariations, int numBits) {
+    cout << "LaTeX syntax below: \n\n";
     cout << "\\begin{array}{";
     for (int i = 0; i < numBits; ++i)   {
         cout << "C|";
@@ -72,5 +102,31 @@ void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int
         (truthArray[i]) ? cout << "T" : cout << "F";
         cout << "\\\\ \n";
     }
-    cout << "\\end{array}\n";
+    cout << "\\end{array}\n \n";
+}
+
+void printMarkdownSyntax(bool truthArray[], deque<string> vars, string equation,int numVariations, int numBits) {
+    cout << "Markdown syntax below: \n \n";
+    // print out the beginning
+    while (!vars.empty())   {
+        cout << vars.front() << " | ";
+        vars.pop_front();
+    }
+    cout << equation << endl;
+
+    for (int i = 0; i < numBits; ++i)   {
+        cout << "----|"; // for each column
+    }
+    cout << "----\n";
+    
+    for (int i = 0; i < numVariations; ++i) {
+        // get the bits of i below
+        for (int j = 0; j < numBits; ++j)   {
+            ((i & 1 << j) >> j) ? cout << "T " : cout << "F ";
+            cout << "| ";
+        }
+        // now output the logical answer for the equation
+        (truthArray[i]) ? cout << "T" : cout << "F";
+        cout << "\n";
+    }
 }

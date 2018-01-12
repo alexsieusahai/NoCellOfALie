@@ -7,9 +7,6 @@
 
 #include "printTables.h"
 
-// TODO:
-// go to line 139
-
 using namespace std;
 
 void printTokens(deque<string> tokens) {
@@ -48,11 +45,13 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
     string toPush;
     if (lop == "and")   {
         toPush = bool2Str(valueMap[var0] and valueMap[var1]);
-        cout << "found lop as and, going to push " << toPush << endl;
+        //cout << "found lop as and, going to push " << toPush << endl;
     } else if  (lop == "or")   {
         toPush = bool2Str(valueMap[var0] or valueMap[var1]);
     } else if (lop == "->") { 
         toPush = bool2Str(!valueMap[var0] or valueMap[var1]);
+    } else if (lop == "<->")    {
+        toPush = bool2Str(valueMap[var0] == valueMap[var1]);
     } else  {
         cout << "ERROR! Invalid logical statement. Asserting true...";
         assert(false);
@@ -68,14 +67,14 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
-            cout << "set var0 to " << var0 << endl;
+            //cout << "set var0 to " << var0 << endl;
             // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
-            cout << "set lop to " << lop << endl;
+            //cout << "set lop to " << lop << endl;
         } else  {
             var1 = equationTokens.front();
-            cout << "set var1 to " << var1 << endl;
+            //cout << "set var1 to " << var1 << endl;
         }
         equationTokens.pop_front();
         if (var0 != "" and var1 != "" and lop != "")    {
@@ -120,10 +119,11 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
     if (eqn == "false") return false;
     for (int i = 0; i < eqn.length(); ++i)  {
         char c = eqn[i];
-        // how do you implement NOT?
         if (c == '~')   {
             reverseBool = true;
+            cout << "setting reverseBool to true\n";
             notForNextBracket = false;
+            continue;
         }
         if (c == '(')   {
             // make sure that the NOT applies to the next set of brackets only
@@ -136,25 +136,33 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
                 }
             }
             // now switch to adding into eval
-            isEval = true;
+
+
+            cout << "adding " << toEval << " to newEqn\n";
+            newEqn += toEval; // in case old info is sitting in there
+
+
             toEval = "";
-            continue;
+            
+            isEval = true;
         }
         if (c == ')')   {
             cout << "passing in " << toEval << endl;
+            // trim the first parentheses from toEval
+            if (toEval.front() == '(')   {
+                toEval = toEval.substr(1);
+                cout << "trimmed toEval to " << toEval << endl;
+            }
+            
             bool toAdd = solveEquationDeque(tokenizeSpaces(toEval), valueMap);
-            // if reverseBool, then you "consumed" the ~ so take a slice of newEqn that doesn't include it
+
             if (reverseBool)    {
                 toAdd = !toAdd;
-                // pop the not symbol off the back of newEqn
-                newEqn.pop_back();
             }
             newEqn += bool2Str(toAdd);
-            newEqn += eqn.substr(i+1);
+            newEqn += eqn.substr(i+1); 
             //cout << "newEqn now is " << newEqn << endl;
             return solveEquation(newEqn, valueMap);
-            assert(false);
-            continue;
         }
         if (isEval) {
             toEval += c;
@@ -163,7 +171,7 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
         }
     }
     // assuming we've broken it into its smallest pieces
-    //cout << "finally solving " << eqn << endl;
+    cout << "finally solving " << eqn << endl;
     return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
 }
 
@@ -173,7 +181,6 @@ int main()  {
     unordered_map<string, bool> valueMap;
     valueMap["true"] = true;
     valueMap["false"] = false;
-    
 
     string vars,equation;
     cout << "Please enter your variables below, seperated by a space.\n";
@@ -199,22 +206,25 @@ int main()  {
             if ((i & 1 << j) >> j)  {
                 //cout << '1';
                 valueMap[tmp[(numBits-1)-j]] = true;
-                valueMap['~'+tmp[(numBits-1)-j]] = false;
-                //cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
+                valueMap["~"+tmp[(numBits-1)-j]] = false;
+                cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
             } else  {
                 //cout << '0';
                 valueMap[tmp[(numBits-1)-j]] = false;
-                valueMap['~'+tmp[(numBits-1)-j]] = true;
-                //cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
+                valueMap["~"+tmp[(numBits-1)-j]] = true;
+                cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
             }
         }
         //sols[i] = solveEquation("(a -> b) and (a or c)",valueMap);
         sols[i] = solveEquation(equation,valueMap);
-        cout << "sols[i] was set to " << bool2Str(sols[i]) << endl;
+        cout << endl << endl;
+        //cout << "sols[i] was set to " << bool2Str(sols[i]) << endl;
     }
 
-    printPlaintext(sols, tmp, equation, numVariations, numBits);
+    printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
     printLatexSyntax(sols, tmp, equation, numVariations, numBits);
+    printPlaintext(sols, tmp, equation, numVariations, numBits);
+
 
     //cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
     return 0;

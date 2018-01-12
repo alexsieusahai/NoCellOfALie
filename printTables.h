@@ -9,7 +9,8 @@ using namespace std;
 
 void printPlaintext(bool truthArray[], deque<string> vars, string equation, int numVariations, int numBits);
 void printLatexSyntax(bool truthArray[], deque<string> vars, string equation, int numVariations, int numBits);
-void printMarkdownSyntax(bool truthArray[], deque<string> vars);
+void printMarkdownSyntax(bool truthArray[], deque<string> vars, string equation, int numVariations, int numBits);
+string toLatex(string equation);
 
 #endif
 
