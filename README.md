@@ -3,7 +3,7 @@
 A C++ Truth Table Generator that generates the Truth Table syntax for LaTeX. Currently in Beta.
 
 How to use:  
-1. Write your equation in solveEquation, write your assignments.
+1. `git clone https://github.com/ItsPax/NoCellOfALie`
 2. Type `make` to make the project.
 3. Type `./solveEquation` and follow the instructions onscreen. For examples of the syntax, look to the examples below.
 
