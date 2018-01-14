@@ -79,6 +79,10 @@ string toLatex(string equation) {
 }
 
 void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int numVariations, int numBits) {
+    cout << "Note that the below code requires this at the beginning of the document: \n" 
+        << "\\usepackage{amsmath}\n" 
+        << "\\usepackage{array}\n"
+        <<"\\newcolumntype{C}{>$c<$}\n";
     cout << "LaTeX syntax below: \n\n";
     cout << "\\begin{array}{";
     for (int i = 0; i < numBits; ++i)   {
@@ -89,7 +93,7 @@ void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int
             cout << '$' << vars.front() << "$ & ";
             vars.pop_front();
     }
-    cout << '$' << toLatex(equation) << "$ \\\\$ \n"
+    cout << '$' << toLatex(equation) << "$ \\\\ \n"
         << "\\hline \n";
     for (int i = 0; i < numVariations; ++i) {
         // get the bits of i below
@@ -98,8 +102,7 @@ void printLatexSyntax(bool truthArray[], deque<string> vars, string equation,int
             cout << "& ";
         }
         // now output the logical answer for the equation
-        cout << "& ";
-        (truthArray[i]) ? cout << "T" : cout << "F";
+        (truthArray[i]) ? cout << "T " : cout << "F ";
         cout << "\\\\ \n";
     }
     cout << "\\end{array}\n \n";
