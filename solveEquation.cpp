@@ -115,15 +115,19 @@ bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
     string newEqn = "",toEval = "";
     cout << "eqn is " << eqn << endl;
     bool isEval = false, reverseBool = false, notForNextBracket = false;
+    int tildeRemovePosition = -1;
     if (eqn == "true")  return true;
     if (eqn == "false") return false;
     for (int i = 0; i < eqn.length(); ++i)  {
         char c = eqn[i];
         if (c == '~')   {
             reverseBool = true;
-            cout << "setting reverseBool to true\n";
+            //cout << "setting reverseBool to true\n";
             notForNextBracket = false;
-            continue;
+            if (tildeRemovePosition != -1)  newEqn.insert(i,"~");
+                // insert tilde in newEqn position described
+                // since we're now consuming a new tilde
+            tildeRemovePosition = i;
         }
         if (c == '(')   {
             // make sure that the NOT applies to the next set of brackets only
