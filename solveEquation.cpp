@@ -111,73 +111,92 @@ deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be s
     return tokens;
 }
 
-bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
-    string newEqn = "",toEval = "";
-    cout << "eqn is " << eqn << endl;
-    bool isEval = false, reverseBool = false, notForNextBracket = false;
-    int tildeRemovePosition = -1;
-    if (eqn == "true")  return true;
-    if (eqn == "false") return false;
-    for (int i = 0; i < eqn.length(); ++i)  {
-        char c = eqn[i];
+bool solveEquation(string eqn, unordered_map<string,bool> valueMap)    {
+    bool toReverse = false;
+    for (char c : eqn)  {
         if (c == '~')   {
-            reverseBool = true;
-            //cout << "setting reverseBool to true\n";
-            notForNextBracket = false;
-            if (tildeRemovePosition != -1)  newEqn.insert(i,"~");
-                // insert tilde in newEqn position described
-                // since we're now consuming a new tilde
-            tildeRemovePosition = i;
+            toReverse = true;
+            eqn = eqn.substr(eqn.find('~')+1,eqn.length()-1);
+            cout << eqn << endl;
         }
         if (c == '(')   {
-            // make sure that the NOT applies to the next set of brackets only
-            if (reverseBool)    {
-                if (!notForNextBracket)  {
-                    notForNextBracket = true;
-                } else  {
-                    reverseBool = false;
-                    notForNextBracket = false;
-                }
+            if (toReverse)  {
+                return !solveEquation(eqn.substr(eqn.find('('),eqn.find(')')),valueMap);
+            } else  {
+                return solveEquation(eqn.substr(eqn.find('('),eqn.find(')')),valueMap);
             }
-            // now switch to adding into eval
-
-
-            cout << "adding " << toEval << " to newEqn\n";
-            newEqn += toEval; // in case old info is sitting in there
-
-
-            toEval = "";
-            
-            isEval = true;
-        }
-        if (c == ')')   {
-            cout << "passing in " << toEval << endl;
-            // trim the first parentheses from toEval
-            if (toEval.front() == '(')   {
-                toEval = toEval.substr(1);
-                cout << "trimmed toEval to " << toEval << endl;
-            }
-            
-            bool toAdd = solveEquationDeque(tokenizeSpaces(toEval), valueMap);
-
-            if (reverseBool)    {
-                toAdd = !toAdd;
-            }
-            newEqn += bool2Str(toAdd);
-            newEqn += eqn.substr(i+1); 
-            //cout << "newEqn now is " << newEqn << endl;
-            return solveEquation(newEqn, valueMap);
-        }
-        if (isEval) {
-            toEval += c;
-        } else  {
-            newEqn += c;
         }
     }
-    // assuming we've broken it into its smallest pieces
-    cout << "finally solving " << eqn << endl;
     return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
 }
+
+//bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
+//    string newEqn = "",toEval = "";
+//    cout << "eqn is " << eqn << endl;
+//    bool isEval = false, reverseBool = false, notForNextBracket = false;
+//    int tildeRemovePosition = -1;
+//    if (eqn == "true")  return true;
+//    if (eqn == "false") return false;
+//    for (int i = 0; i < eqn.length(); ++i)  {
+//        char c = eqn[i];
+//        if (c == '~')   {
+//            reverseBool = true;
+//            //cout << "setting reverseBool to true\n";
+//            notForNextBracket = false;
+//            if (tildeRemovePosition != -1)  newEqn.insert(i,"~");
+//                // insert tilde in newEqn position described
+//                // since we're now consuming a new tilde
+//            tildeRemovePosition = i;
+//        }
+//        if (c == '(')   {
+//            // make sure that the NOT applies to the next set of brackets only
+//            if (reverseBool)    {
+//                if (!notForNextBracket)  {
+//                    notForNextBracket = true;
+//                } else  {
+//                    reverseBool = false;
+//                    notForNextBracket = false;
+//                }
+//            }
+//            // now switch to adding into eval
+//
+//
+//            cout << "adding " << toEval << " to newEqn\n";
+//            newEqn += toEval; // in case old info is sitting in there
+//
+//
+//            toEval = "";
+//            
+//            isEval = true;
+//        }
+//        if (c == ')')   {
+//            cout << "passing in " << toEval << endl;
+//            // trim the first parentheses from toEval
+//            if (toEval.front() == '(')   {
+//                toEval = toEval.substr(1);
+//                cout << "trimmed toEval to " << toEval << endl;
+//            }
+//            
+//            bool toAdd = solveEquationDeque(tokenizeSpaces(toEval), valueMap);
+//
+//            if (reverseBool)    {
+//                toAdd = !toAdd;
+//            }
+//            newEqn += bool2Str(toAdd);
+//            newEqn += eqn.substr(i+1); 
+//            //cout << "newEqn now is " << newEqn << endl;
+//            return solveEquation(newEqn, valueMap);
+//        }
+//        if (isEval) {
+//            toEval += c;
+//        } else  {
+//            newEqn += c;
+//        }
+//    }
+//    // assuming we've broken it into its smallest pieces
+//    cout << "finally solving " << eqn << endl;
+//    return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
+//}
 
 
 
