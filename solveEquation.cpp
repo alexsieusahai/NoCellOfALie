@@ -113,92 +113,24 @@ deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be s
 
 bool solveEquation(string eqn, unordered_map<string,bool> valueMap)    {
     bool toReverse = false;
-    for (char c : eqn)  {
+    for (int i = 0; i < eqn.length(); ++i)  {
+        char c = eqn[i];
         if (c == '~')   {
             toReverse = true;
             eqn = eqn.substr(eqn.find('~')+1,eqn.length()-1);
-            cout << eqn << endl;
+            i--;
         }
         if (c == '(')   {
             if (toReverse)  {
-                return !solveEquation(eqn.substr(eqn.find('('),eqn.find(')')),valueMap);
+                return !solveEquation(eqn.substr(eqn.find('(')+1,eqn.find_last_of(')')-1),valueMap);
             } else  {
-                return solveEquation(eqn.substr(eqn.find('('),eqn.find(')')),valueMap);
+                return solveEquation(eqn.substr(eqn.find('(')+1,eqn.find_last_of(')')-1),valueMap);
             }
         }
     }
-    return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
+    bool toReturn = solveEquationDeque(tokenizeSpaces(eqn), valueMap);
+    return toReturn;
 }
-
-//bool solveEquation(string eqn, unordered_map<string, bool> valueMap)    {
-//    string newEqn = "",toEval = "";
-//    cout << "eqn is " << eqn << endl;
-//    bool isEval = false, reverseBool = false, notForNextBracket = false;
-//    int tildeRemovePosition = -1;
-//    if (eqn == "true")  return true;
-//    if (eqn == "false") return false;
-//    for (int i = 0; i < eqn.length(); ++i)  {
-//        char c = eqn[i];
-//        if (c == '~')   {
-//            reverseBool = true;
-//            //cout << "setting reverseBool to true\n";
-//            notForNextBracket = false;
-//            if (tildeRemovePosition != -1)  newEqn.insert(i,"~");
-//                // insert tilde in newEqn position described
-//                // since we're now consuming a new tilde
-//            tildeRemovePosition = i;
-//        }
-//        if (c == '(')   {
-//            // make sure that the NOT applies to the next set of brackets only
-//            if (reverseBool)    {
-//                if (!notForNextBracket)  {
-//                    notForNextBracket = true;
-//                } else  {
-//                    reverseBool = false;
-//                    notForNextBracket = false;
-//                }
-//            }
-//            // now switch to adding into eval
-//
-//
-//            cout << "adding " << toEval << " to newEqn\n";
-//            newEqn += toEval; // in case old info is sitting in there
-//
-//
-//            toEval = "";
-//            
-//            isEval = true;
-//        }
-//        if (c == ')')   {
-//            cout << "passing in " << toEval << endl;
-//            // trim the first parentheses from toEval
-//            if (toEval.front() == '(')   {
-//                toEval = toEval.substr(1);
-//                cout << "trimmed toEval to " << toEval << endl;
-//            }
-//            
-//            bool toAdd = solveEquationDeque(tokenizeSpaces(toEval), valueMap);
-//
-//            if (reverseBool)    {
-//                toAdd = !toAdd;
-//            }
-//            newEqn += bool2Str(toAdd);
-//            newEqn += eqn.substr(i+1); 
-//            //cout << "newEqn now is " << newEqn << endl;
-//            return solveEquation(newEqn, valueMap);
-//        }
-//        if (isEval) {
-//            toEval += c;
-//        } else  {
-//            newEqn += c;
-//        }
-//    }
-//    // assuming we've broken it into its smallest pieces
-//    cout << "finally solving " << eqn << endl;
-//    return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
-//}
-
-
 
 int main()  {
     unordered_map<string, bool> valueMap;
@@ -220,6 +152,7 @@ int main()  {
 
     cout << "Please enter your equation below.\n";
     getline(cin, equation);
+    equation = '('+equation+')';
     // should include a syntax checker here 
     
     bool sols[numVariations];
@@ -244,8 +177,8 @@ int main()  {
         //cout << "sols[i] was set to " << bool2Str(sols[i]) << endl;
     }
 
-    printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
-    printLatexSyntax(sols, tmp, equation, numVariations, numBits);
+    //printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
+    //printLatexSyntax(sols, tmp, equation, numVariations, numBits);
     printPlaintext(sols, tmp, equation, numVariations, numBits);
 
 
