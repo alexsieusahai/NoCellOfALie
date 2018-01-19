@@ -44,7 +44,7 @@ string bool2Str(bool toConvert) {
 string subString(string str, int index0, int index1)    {
     string toReturn = "";
     if (index0 == index1) return toReturn;
-    for (int i = index0; i <= index1; ++i)    {
+    for (int i = index0; i <= index1 && i < str.length(); ++i)    {
         toReturn += str[i];
     }
     //cout << "got str: " << str << endl;
@@ -55,12 +55,14 @@ string subString(string str, int index0, int index1)    {
 
 string evaluate(string var0, string var1, string lop, unordered_map<string, bool> valueMap)  {
     string toPush;
-    cout << "evaluate sees: " << var0 << ' ' << var1 << ' ' << lop << endl;
+    //cout << "evaluate sees: " << var0 << ' ' << var1 << ' ' << lop << endl;
+    //cout << "valueMap[val0] " << valueMap[var0] << ' ' << "valueMap[val1] " << valueMap[var1] << endl;
     if (lop == "and")   {
         toPush = bool2Str(valueMap[var0] and valueMap[var1]);
         //cout << "found lop as and, going to push " << toPush << endl;
     } else if  (lop == "or")   {
-        cout << "saw lop as or\n";
+        //cout << "saw lop as or\n";
+	//cout << (valueMap[var0] or valueMap[var1]) << endl;
         toPush = bool2Str(valueMap[var0] or valueMap[var1]);
     } else if (lop == "->") { 
         toPush = bool2Str(!valueMap[var0] or valueMap[var1]);
@@ -77,17 +79,21 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
 bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool> valueMap)    {
     // solve equation without brackets
     string var0 = "", var1 = "", lop = "";
+    if (valueMap["true"] != true)	{
+	    cout << "valueMap[true] is false";
+	    assert(false);
+    }
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
-            cout << "set var0 to " << var0 << endl;
+            //cout << "set var0 to " << var0 << endl;
             // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
-            cout << "set lop to " << lop << endl;
+            //cout << "set lop to " << lop << endl;
         } else  {
             var1 = equationTokens.front();
-            cout << "set var1 to " << var1 << endl;
+            //cout << "set var1 to " << var1 << endl;
         }
         equationTokens.pop_front();
         if (var0 != "" and var1 != "" and lop != "")    {
@@ -158,12 +164,13 @@ bool solveEquation(string eqn, unordered_map<string,bool> valueMap)    {
     int firstBracketPosition = -1, lastBracketPosition = -1;
     for (int i = 0; i < eqn.length(); ++i)  {
         char c = eqn[i];
-        if (c == '~')   {
+	cout << "c is " << c << endl;
+        if (c == '~' && eqn[i+1] == '(')   {
             toReverse = true;
-            //cout << "found tilde; changing eqn:\n";
-            eqn = eqn.substr(eqn.find('~')+1,eqn.length()-1);
-            //cout << "changed eqn is " << eqn;
-            i--;
+            cout << "found tilde; changing eqn:\n";
+            eqn = eqn.substr(0,eqn.find('~'))+eqn.substr(eqn.find('~')+1,eqn.length()-1);
+            cout << "changed eqn is " << eqn << endl;
+	    i = -1; // start going through from the beginning of the string again
         }
         if (c == '(')   {
             firstBracketPosition = i;
@@ -223,12 +230,12 @@ int main()  {
                 //cout << '1';
                 valueMap[tmp[(numBits-1)-j]] = true;
                 valueMap["~"+tmp[(numBits-1)-j]] = false;
-                //cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
+                cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
             } else  {
                 //cout << '0';
                 valueMap[tmp[(numBits-1)-j]] = false;
                 valueMap["~"+tmp[(numBits-1)-j]] = true;
-                //cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
+                cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
             }
         }
         //sols[i] = solveEquation("(a -> b) and (a or c)",valueMap);
