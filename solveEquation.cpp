@@ -104,6 +104,7 @@ bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool
     if (var0 == "true" || var0 == "false")  {
         return str2Bool(var0);
     }
+    cout << "returning " << bool2Str(valueMap[var0]) << " from " << var0 << endl;
     return valueMap[var0];
 }
 
@@ -153,7 +154,7 @@ int getEndBracketPosition(string eqn, int firstBracketPosition)   {
 
 
 bool solveEquation(string eqn, unordered_map<string,bool> valueMap)    {
-    //cout << "the equation I'm operating on is " << eqn << endl;
+    cout << "the equation I'm operating on is " << eqn << endl;
     if (eqn == "true") return true;
     if (eqn == "false") return false;
     bool toReverse = false;
@@ -215,7 +216,7 @@ int main()  {
     cout << "Please enter your equation below.\n";
     getline(cin, equation);
     string cleanEquation = equation;
-    equation = '('+equation+')';
+    //equation = '('+equation+')';
     // should include a syntax checker here 
     
     bool sols[numVariations];
