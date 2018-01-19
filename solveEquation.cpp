@@ -244,8 +244,8 @@ int main()  {
         //cout << "sols[i] was set to " << bool2Str(sols[i]) << endl;
     }
 
-    //printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
-    //printLatexSyntax(sols, tmp, equation, numVariations, numBits);
+    printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
+    printLatexSyntax(sols, tmp, equation, numVariations, numBits);
     printPlaintext(sols, tmp, cleanEquation, numVariations, numBits);
 
 
