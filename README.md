@@ -8,6 +8,10 @@ How to use:
 3. Type `make` to make the project.
 4. Type `./solveEquation` and follow the instructions onscreen. For examples of the syntax, look to the examples below.
 
+Bugs:  
+`~(p and q) -> (~q or r)` does not currently work; I believe it's a problem with `std::string.substr()`. Try `str.substr(10,17)` while `string str = "false -> (~q or r)"`.  
+
+
 Examples:
 - `a`
 - `~a`

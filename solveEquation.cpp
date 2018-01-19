@@ -41,12 +41,26 @@ string bool2Str(bool toConvert) {
     }
 }
 
+string subString(string str, int index0, int index1)    {
+    string toReturn = "";
+    if (index0 == index1) return toReturn;
+    for (int i = index0; i <= index1; ++i)    {
+        toReturn += str[i];
+    }
+    //cout << "got str: " << str << endl;
+    //cout << "I want to take from " << index0 << " to " << index1 << endl;
+    //cout << "subString is returning " << toReturn << endl;
+    return toReturn;
+}
+
 string evaluate(string var0, string var1, string lop, unordered_map<string, bool> valueMap)  {
     string toPush;
+    cout << "evaluate sees: " << var0 << ' ' << var1 << ' ' << lop << endl;
     if (lop == "and")   {
         toPush = bool2Str(valueMap[var0] and valueMap[var1]);
         //cout << "found lop as and, going to push " << toPush << endl;
     } else if  (lop == "or")   {
+        cout << "saw lop as or\n";
         toPush = bool2Str(valueMap[var0] or valueMap[var1]);
     } else if (lop == "->") { 
         toPush = bool2Str(!valueMap[var0] or valueMap[var1]);
@@ -56,25 +70,24 @@ string evaluate(string var0, string var1, string lop, unordered_map<string, bool
         cout << "ERROR! Invalid logical statement. Asserting true...";
         assert(false);
     }
-    //cout << "evaluate returned " << toPush << " and I'm returning this to be pushed onto deque\n";
+    cout << "evaluate returned " << toPush << " and I'm returning this to be pushed onto deque\n";
     return toPush;
 }
 
 bool solveEquationDeque(deque<string> equationTokens, unordered_map<string, bool> valueMap)    {
-    // solve equation
-    // does not currently support brackets
+    // solve equation without brackets
     string var0 = "", var1 = "", lop = "";
     while (!equationTokens.empty()) {
         if (var0 == "") {
             var0 = equationTokens.front();
-            //cout << "set var0 to " << var0 << endl;
+            cout << "set var0 to " << var0 << endl;
             // check for NOT
         } else if (lop == "")  {
             lop = equationTokens.front();
-            //cout << "set lop to " << lop << endl;
+            cout << "set lop to " << lop << endl;
         } else  {
             var1 = equationTokens.front();
-            //cout << "set var1 to " << var1 << endl;
+            cout << "set var1 to " << var1 << endl;
         }
         equationTokens.pop_front();
         if (var0 != "" and var1 != "" and lop != "")    {
@@ -111,25 +124,71 @@ deque<string> tokenizeSpaces(string rawStr)    { // delimiter only needs to be s
     return tokens;
 }
 
+int getEndBracketPosition(string eqn, int firstBracketPosition)   {
+    int lastBracketPosition = -1;
+    int bracketCount = 0;
+    for (int i = firstBracketPosition; i < eqn.length(); ++i)   {
+        char c = eqn[i];
+        if (c == '(')   bracketCount++;
+        if (c == ')')   {
+            bracketCount--;
+            if (bracketCount == 0)  {
+                lastBracketPosition = i;
+                break;
+            }
+        }
+    }
+    if (lastBracketPosition == -1)  {
+        cout << "cullBrackets couldn't find another bracket!\n" 
+            << "this was the equation: " << eqn << endl;
+        assert(false);
+    }
+    //cout << endl << eqn << endl;
+    //cout << "to\n";
+    //cout << eqn.substr(firstBracketPosition+1, lastBracketPosition-1) << endl << endl;
+    return lastBracketPosition;
+}
+
+
 bool solveEquation(string eqn, unordered_map<string,bool> valueMap)    {
+    cout << "the equation I'm operating on is " << eqn << endl;
+    if (eqn == "true") return true;
+    if (eqn == "false") return false;
     bool toReverse = false;
+    int firstBracketPosition = -1, lastBracketPosition = -1;
     for (int i = 0; i < eqn.length(); ++i)  {
         char c = eqn[i];
         if (c == '~')   {
             toReverse = true;
+            //cout << "found tilde; changing eqn:\n";
             eqn = eqn.substr(eqn.find('~')+1,eqn.length()-1);
+            //cout << "changed eqn is " << eqn;
             i--;
         }
         if (c == '(')   {
-            if (toReverse)  {
-                return !solveEquation(eqn.substr(eqn.find('(')+1,eqn.find_last_of(')')-1),valueMap);
+            firstBracketPosition = i;
+            lastBracketPosition = getEndBracketPosition(eqn, i);
+            int toPassFirst = firstBracketPosition, toPassLast = lastBracketPosition;
+            if (toPassFirst == 0) toPassFirst = 1;
+            if (toPassLast == eqn.length()-1) toPassLast = eqn.length()-2;
+            //cout << "eqn is " << eqn << endl;
+            //cout << "eqn.length() is " << eqn.length() << endl;
+            //cout << "according to firstbracket and lastbracket, this part of the equation is " << subString(eqn,firstBracketPosition+1,lastBracketPosition-1) << endl;
+            //cout << "firstBracket and lastBracket positions are " << firstBracketPosition << ' ' << lastBracketPosition << endl;
+            cout << subString(eqn,0,toPassFirst-1)+" ... "+ subString(eqn,lastBracketPosition+1,eqn.length()) << endl;
+            if (!toReverse) {
+                return solveEquation(subString(eqn,0,toPassFirst-1)+bool2Str(solveEquation(subString(eqn,firstBracketPosition+1,lastBracketPosition-1),valueMap))+subString(eqn,lastBracketPosition+1, eqn.length()), valueMap);
             } else  {
-                return solveEquation(eqn.substr(eqn.find('(')+1,eqn.find_last_of(')')-1),valueMap);
+                return solveEquation(subString(eqn,0,toPassFirst-1)+bool2Str(!solveEquation(subString(eqn,firstBracketPosition+1,lastBracketPosition-1),valueMap))+subString(eqn,lastBracketPosition+1, eqn.length()),valueMap);
             }
         }
+        if (c == ')') {
+            cout <<  "Something went wrong. I found an ending bracket with no beginning. Bye!\n" << "this was the equation:\n " << eqn;
+            assert(false);
+        }
     }
-    bool toReturn = solveEquationDeque(tokenizeSpaces(eqn), valueMap);
-    return toReturn;
+    cout << "sending this to the deque function: " << eqn << endl;
+    return solveEquationDeque(tokenizeSpaces(eqn), valueMap);
 }
 
 int main()  {
@@ -152,6 +211,7 @@ int main()  {
 
     cout << "Please enter your equation below.\n";
     getline(cin, equation);
+    string cleanEquation = equation;
     equation = '('+equation+')';
     // should include a syntax checker here 
     
@@ -163,12 +223,12 @@ int main()  {
                 //cout << '1';
                 valueMap[tmp[(numBits-1)-j]] = true;
                 valueMap["~"+tmp[(numBits-1)-j]] = false;
-                cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
+                //cout << tmp[(numBits-1)-j] << " is set to true for this run\n";
             } else  {
                 //cout << '0';
                 valueMap[tmp[(numBits-1)-j]] = false;
                 valueMap["~"+tmp[(numBits-1)-j]] = true;
-                cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
+                //cout << tmp[(numBits-1)-j] << " is set to false for this run\n";
             }
         }
         //sols[i] = solveEquation("(a -> b) and (a or c)",valueMap);
@@ -179,7 +239,7 @@ int main()  {
 
     //printMarkdownSyntax(sols, tmp, equation, numVariations, numBits);
     //printLatexSyntax(sols, tmp, equation, numVariations, numBits);
-    printPlaintext(sols, tmp, equation, numVariations, numBits);
+    printPlaintext(sols, tmp, cleanEquation, numVariations, numBits);
 
 
     //cout << bool2Str(solveEquation("(a -> b) and (a or c)",valueMap));
